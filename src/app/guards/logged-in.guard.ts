@@ -1,31 +1,29 @@
-import {Injectable} from '@angular/core';
-import {CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot} from '@angular/router';
-import {Observable} from 'rxjs';
-import {JwtService} from "../shared/services/jwt.service";
+import { Injectable } from '@angular/core';
+import {
+  CanActivate,
+  ActivatedRouteSnapshot,
+  RouterStateSnapshot,
+  Router,
+} from '@angular/router';
+import { Observable } from 'rxjs';
+import { AuthService } from '../shared/services/auth.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LoggedInGuard implements CanActivate {
-  constructor(
-    private jwtService: JwtService) {
-  }
+  constructor(private authService: AuthService, private router: Router) {}
 
   canActivate(
     next: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot): Observable<any> | Promise<any> | boolean {
-    if (this.jwtService.getUser()) {
-      console.log('found user')
-      if (this.jwtService.isTokenExpired()) {
-        return false;
-      } else {
+    state: RouterStateSnapshot
+  ): Observable<any> | Promise<any> | boolean {
+    return this.authService.isLoggedIn().then((result) => {
+      if (result) {
         return true;
+      } else {
+        return this.router.navigate(['auth/login']);
       }
-    } else {
-      console.log("no user")
-      return new Promise(resolve => {
-        return false;
-      });
-    }
+    });
   }
 }
