@@ -54,7 +54,9 @@ export class AuthService {
       return true;
     }
     if (this.jwtService.canRefreshToken()) {
-      await firstValueFrom(this.refreshUserQuery());
+      await firstValueFrom(this.refreshUserQuery()).then((value) => {
+        this.jwtService.setToken(value.data.refreshUser.access_token);
+      });
     }
     return !this.jwtService.isTokenExpired();
   }
